@@ -226,6 +226,88 @@ $$ -->
 
 <div align="center"><img style="background: white;" src="../svg/aqini_vs_cgains_formula.svg"></div>
 
+Based on the revised formulation of the Adjusted Qini, we can clearly see the difference in the multipliers.
+
+<table>
+  <tr>
+    <td>Adjusted Qini</td>
+     <td>Cumulative Gains</td>
+  </tr>
+  <tr>
+    <td><img src="../img/aqini_formula_multiplier.png" width=270></td>
+    <td><img src="../img/cgains_formula_multiplier.png" width=340></td>
+  </tr>
+ </table>
+
+The Adjusted Qini has a multiplier that is based on <!-- $\frac{n_t(\phi)}{N_t}$ --> <img style="transform: translateY(0.1em); background: white;" src="https://render.githubusercontent.com/render/math?math=%5Cfrac%7Bn_t(%5Cphi)%7D%7BN_t%7D"> but the Cumulative Gain has a multiplier based on  <!-- $\frac{n_t(\phi) + n_c(\phi)}{N_t + N_c}$ --> <img style="transform: translateY(0.1em); background: white;" src="https://render.githubusercontent.com/render/math?math=%5Cfrac%7Bn_t(%5Cphi)%20%2B%20n_c(%5Cphi)%7D%7BN_t%20%2B%20N_c%7D">.
+
+Given the cumulative gain uses both Treated and Control population at every fraction in adjustment factor, we emphasize that the cumulative gains chart is less biased than the adjusted Qini curve.  However, the adjusted Qini can be useful when the percentage of the Treated group is much smaller compared to the Control group in the experiment. Under such a scenario, the adjusted Qini will value the treatment group information disproportionately higher. 
+
+## Model Comparison with Area Under Curve (AUC) Differential
+
+To incorporate the various metrics for evaluation, we have to refer back to the gain chart visualisation. As mentioned, the randomised model is the typical benchmark that is represented by the diagonal 45 degree line.
+
+<div align="center"><img src="../img/example_gain_chart_auc.png"></div>
+<div align="center">Fig 2: Example Gain Chart with AUC differential between a given model (curve with circular dots and solid lines) versus a randomised model benchmark (curve with dashed lines) </div>
+
+When we evaluate a model’s performance relative using the Qini formulation for example, we calculate the Q coefficient which is represented by:
+
+<div align="center"><img src="../img/AUC_formula_for_qini.png"></div>
+
+This difference in AUC is represented by the red shading in the above figure. Note that the same can be done for Adjusted Qini or Cumulative Gain as the metric.
+
+For more details, please refer to ![PyLift’s documentation on the 3 measures](https://pylift.readthedocs.io/en/latest/introduction.html#the-qini-curve).
+
+## Criteo dataset
+
+The Criteo dataset was created as a standardised benchmark dataset for research experimentation and algorithm comparison. This dataset consists of about 13 million observations.
+
+The dataset comes with the following variables:
+- __f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11__: feature values (dense, float)
+- __treatment__: treatment group (1 = treated, 0 = control)
+- __conversion__: whether a conversion occurred for this user (binary, label)
+- __visit__: whether a visit occurred for this user (binary, label)
+- __exposure__: treatment effect, whether the user has been effectively exposed (binary)
+
+With this dataset, the treatment assignment is randomised, but the ratio between the Treated vs Control group is 85% to 15%. 
+
+<div align="center"><img src="../img/EDA_treated_vs_control_ratio.png"></div>
+
+Based on the difference in treatment assignments, we can take a look at the breakdown of two different outcome distributions, namely __“Visit”__ and __“Conversion”__.
+
+With __Visit__ as an outcome, the response rates are
+- Control group: 80105/ (80105 + 2016832) = 3.82%
+- Treated group: 576824 / (576824 + 11305831) = 4.85%
+
+<div align="center"><img src="../img/EDA_visit_outcome_distribution.png"></div>
+
+With __Conversion__ as an outcome, the response rates are:
+- Control group: 4063 / (4063 + 2092874) = 0.194%
+- Treated group: 36711 / (36711 + 11845944) = 0.309%.
+
+<div align="center"><img src="../img/EDA_conversion_outcome_distribution.png"></div>
+
+<table align="center">
+  <tr>
+    <td>Outcome</td>
+    <td>Visit</td>
+    <td>Conversion</td>
+  </tr>
+  <tr>
+    <td>Control</td>
+    <td>3.82%</td>
+    <td>0.194%</td>
+  </tr>
+  <tr>
+    <td>Treated</td>
+    <td>4.85%</td>
+    <td>0.309%</td>
+  </tr>
+ </table>
+
+The above table shows a big difference
+For more details, you can refer to the paper ![“A Large Scale Benchmark for Uplift Modeling”](http://ama.imag.fr/~amini/Publis/large-scale-benchmark.pdf) or to this link (http://ailab.criteo.com/criteo-uplift-prediction-dataset/).
+
 
 ## Appendix 
 
