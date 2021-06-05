@@ -159,7 +159,7 @@ $$ -->
 
 <div align="center"><img style="background: white;" src="../uplift_modelling_with_Criteo_dataset/svg/ot_tau.svg"></div>
 
-For a detailed mathematical proof of the above, please refer to __Appendix A1__ which has a handwritten breakdown of the mathematical formulation.
+For a detailed mathematical proof of the above, please refer to [__Appendix A1__](https://github.com/kfoofw/applied_learning_articles/blob/main/uplift_modelling_with_Criteo_dataset/article.md#a1-theoretical-proof-of-outcome-transformation-approach) which has a handwritten breakdown of the mathematical formulation.
 
 ## Evaluation Techniques
 
