@@ -117,36 +117,122 @@ $$ -->
 Thereafter, in the second stage, the two models (M<sub>11</sub> and M<sub>00</sub>) are created using the intermediate values D<sup>1</sup> and D<sup>0</sup> accordingly:
 
 <!-- $$
-M_{11}(\hat{D}^1\ ~ \ X^1),\ M_{00}(\hat{D}^0\ ~ \ X^0)
+Second\ Stage:\ M_{11}(\hat{D}^1\ \sim \ X^1),\ M_{00}(\hat{D}^0\ \sim \ X^0)
 $$ --> 
 
-<div align="center"><img style="background: white;" src="../svg/NOovfHFLSU.svg"></div>
-
+<div align="center"><img style="background: white;" src="../svg/pKBicNRux7.svg"></div>
 
 Subsequently, the CATE estimation for a given unit (with its corresponding X features) is shown by the following:
 
 <!-- $$
-\hat{\tau}(X) = g(x)M_{00}(\hat{D}^0\ ~\ X^0) - (1 - g(x))M_{11}(\hat{D}^1\ ~\ X^1)
+\hat{\tau}(X) = g(x)M_{00}(X) - (1 - g(x))M_{11}(X)
 $$ --> 
 
-<div align="center"><img style="background: white;" src="https://render.githubusercontent.com/render/math?math=%5Chat%7B%5Ctau%7D(X)%20%3D%20g(x)M_%7B00%7D(%5Chat%7BD%7D%5E0%5C%20~%5C%20X%5E0)%20-%20(1%20-%20g(x))M_%7B11%7D(%5Chat%7BD%7D%5E1%5C%20~%5C%20X%5E1)"></div> 
-
+<div align="center"><img style="background: white;" src="../svg/f2dd6UhIY2.svg"></div>
 
 Where g(x) is some function and typically created as the propensity scoring model.
 
+### CATE-generating Outcome Transformer (OT) approach
+
+For the OT approach, a key insight is that we can characterize the CATE as a conditional expectation of an observed variable by transforming the outcome using the treatment indicator and the treatment assignment probability. 
+
+The CATE-generating transformation of the outcome is shown by the following formula:
+
+<!-- $$
+Y^{*}_{i} = Y^{obs}_{*}.\frac{W_i - e(X_i)}{e(X_i).(1-e(X_i))}
+$$ --> 
+
+<div align="center"><img style="background: white;" src="https://render.githubusercontent.com/render/math?math=Y%5E%7B*%7D_%7Bi%7D%20%3D%20Y%5E%7Bobs%7D_%7B*%7D.%5Cfrac%7BW_i%20-%20e(X_i)%7D%7Be(X_i).(1-e(X_i))%7D"></div>
+
+where:
+- __i__ is an indexing on the treated subject, 
+- __Y<sub>i</sub><sup>obs</sup>__ is the observed outcome
+- __e(X<sub>i</sub>)__ is the treatment assignment probability aka propensity score
+- __W<sub>i</sub>__ is treatment indicator variable
+
+Suppose that the unconfoundedness/conditional exchangeability assumption holds, then
+
+<!-- $$
+\mathbb{E}[Y_i^{*} | X_i = x]\ =\ \tau(x)
+$$ --> 
+
+<div align="center"><img style="background: white;" src="../svg/044Ij2WMQv.svg"></div>
+
+For a detailed mathematical proof of the above, please refer to Appendix A1 which has a handwritten breakdown of the mathematical formulation.
+
+## Evaluation Techniques
+
+Evaluation of uplift models involves various metrics. However, before we get into the different metrics, one should understand how to read a gain chart. In the x-axis, we seek to rank the population according to the predicted treatment effects (from highest to lowest typically in a left to right manner along the x-axis.). Thereafter, we can calculate the metric of interest on the y-axis as if we were accumulating more and more of the population quantiles. 
+
+<div align="center"><img src="../img/example_gain_chart.png"></div>
+<div align="center">Fig 1: Example Gain Chart</div>
+
+Notably, the typical benchmark for evaluative comparison is a randomised model. This is often represented by the diagonal relatively “straight” line which represents a policy/model that does not discriminate between the subgroups populations (which is represented by the solid black line above). With the lack of prioritisation, the gain effect climbs steadily on average as you increment across the population quantiles.
+
+In the chart above, the green and blue lines show the gain performance for uplift models that have prioritised the population subgroups. For a given population percentage (vertical line at a x-axis value), we can read off the graph to compare the y-values between different models and also against the benchmark value. This difference represents the performance lift, and it can possibly lead to some form of value optimization. For example, as shown by the red line along the green curve, by targeting 40% of the population, one captures about 85% of the possible gain value compared to targeting the whole population.
+
+In uplift modelling, there are 3 common evaluative measures namely:
+- Qini curve
+- Adjusted Qini curve
+- Cumulative Gain curve
+
+### Qini Curve
+
+The Qini Curve is formulated by the following formula:
+
+<!-- $$
+Qini(\phi) = \frac{n_{t, y = 1}(\phi)}{N_t} - \frac{n_{c,y=1}(\phi)}{N_c}
+$$ --> 
+
+<div align="center"><img style="background: white;" src="../svg/qini_formula.svg"></div>
+
+The population fraction ϕ is the fraction of population treated (in either treated t or control c, as indicated by the subscripts) ordered by predicted uplift (from highest to lowest). The numerators represent the count of positive binary outcomes corresponding to either the Treatment group or the Control Group. The denominators (represented by capital N) however do not depend on the population fraction, and are instead the total count of either Treatment or Controls in the experiment. 
+
+Mathematically, the value represents the difference in Positive Outcomes between the Treatment group vs the Control Group for a given population quantile. The bigger the value is, the bigger the treatment effect.
+
+The intuition is that since we ranked the population by descending predicted treatment effects, we would expect the Qini value to be higher at the earliest quantile of the population (where the treatment effect is bigger), and taper off with increasing population quantiles (where the treatment effect is smaller).
+
+### Adjusted Qini Curve
+
+The Adjusted Qini curve is based on the following formula:
+
+<!-- $$
+Adjusted\ Qini(\phi) = \frac{n_{t, y = 1}(\phi)}{N_t} - \frac{n_{c,y=1}(\phi)n_t(\phi)}{n_c(\phi)N_t}
+$$ --> 
+
+<div align="center"><img style="background: white;" src="../svg/adjusted_qini_formula.svg"></div>
+
+The difference between the Qini curve and the adjusted Qini curve is the fraction for the Control group (represented by the fraction being subtracted). This modified fraction is formulated to represent the fraction value while adjusting for the count of Positive Outcomes in the Control group as if the Total Control Group size was similar to the Total Treatment group size. This is particularly applicable for cases where the treatment group is much smaller compared to the control group in a randomised control trial (where the rationale being that you may not want to expose a potentially harmful treatment to a large proportion of your experimental population). 
+
+### Cumulative Gain Curve
+
+There are different variants of the Cumulative Gain metric, but for this article, the formula is based on the following:
+
+<!-- $$
+Cumulative\ Gain(\phi) = \left (\frac{n_{t, y = 1}(\phi)}{n_t(\phi)} - \frac{n_{c,y=1}(\phi)}{n_c(\phi)}\right )\frac{n_t(\phi) + n_c(\phi)}{N_t + N_c}
+$$ --> 
+
+<div align="center"><img style="background: white;" src="../svg/cgains_formula.svg"></div>
+
+The first bracket shows the difference in fractions in the Treatment vs Control groups, whereby the numerators represent the count of Positive Outcomes while the denominator represents the count of Treatment/Control based on a given population.
+
+#### Comparison between Adjusted Qini and Cumulative Gain
+
+The Adjusted Qini Curve can also be reformulated in a different way to illustrate that it is similar to the Cumulative Gain, but with a different multiplier.
+
+<!-- $$
+Adjusted\ Qini(\phi) = \frac{n_{t, y = 1}(\phi)}{N_t} - \frac{n_{c,y=1}(\phi)n_t(\phi)}{n_c(\phi)N_t} = \left (\frac{n_{t, y = 1}(\phi)}{n_t(\phi)} - \frac{n_{c,y=1}(\phi)}{n_c(\phi)}\right )\frac{n_t(\phi)}{N_t}
+$$ --> 
+
+<div align="center"><img style="background: white;" src="../svg/aqini_vs_cgains_formula.svg"></div>
+
+
+## Appendix 
+
+### A1
 
 
 
 ## References
 1. ![Machine Learning for Estimating Heretogeneous Casual Effects](https://www.gsb.stanford.edu/faculty-research/working-papers/machine-learning-estimating-heretogeneous-casual-effects)
 2. ![Meta-learners for Estimating Heterogeneous Treatment Effects using Machine Learning](https://arxiv.org/abs/1706.03461)
-
-<!-- $$
-D \approx X
-$$ --> 
-
-<div align="center"><img style="background: white;" src="https://render.githubusercontent.com/render/math?math=D%20%5Capprox%20X"></div>
-
-<div align="center"><img style="background: white;" src="../svg/g9OEsDsevt.svg"></div>
-
-<div align="center"><img style="background: white;" src="../svg/XC30Tu72PM.svg"></div>
