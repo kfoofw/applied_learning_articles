@@ -228,7 +228,7 @@ $$ -->
 
 Based on the revised formulation of the Adjusted Qini, we can clearly see the difference in the multipliers.
 
-<table>
+<table align="center">
   <tr>
     <td>Adjusted Qini</td>
      <td>Cumulative Gains</td>
@@ -256,7 +256,7 @@ When we evaluate a model’s performance relative using the Qini formulation for
 
 This difference in AUC is represented by the red shading in the above figure. Note that the same can be done for Adjusted Qini or Cumulative Gain as the metric.
 
-For more details, please refer to ![PyLift’s documentation on the 3 measures](https://pylift.readthedocs.io/en/latest/introduction.html#the-qini-curve).
+For more details, please refer to [PyLift’s documentation on the 3 measures](https://pylift.readthedocs.io/en/latest/introduction.html#the-qini-curve).
 
 ## Criteo dataset
 
@@ -287,6 +287,8 @@ With __Conversion__ as an outcome, the response rates are:
 
 <div align="center"><img src="../img/EDA_conversion_outcome_distribution.png"></div>
 
+The table below shows a big difference in the quantum of the outcome scenarios, where the __Conversion__ rates are about 10 to 20 times smaller than the __Visit__ rates.
+
 <table align="center">
   <tr>
     <td>Outcome</td>
@@ -305,16 +307,103 @@ With __Conversion__ as an outcome, the response rates are:
   </tr>
  </table>
 
-The above table shows a big difference
-For more details, you can refer to the paper ![“A Large Scale Benchmark for Uplift Modeling”](http://ama.imag.fr/~amini/Publis/large-scale-benchmark.pdf) or to this link (http://ailab.criteo.com/criteo-uplift-prediction-dataset/).
+
+For more details, you can refer to the paper [“A Large Scale Benchmark for Uplift Modeling”](http://ama.imag.fr/~amini/Publis/large-scale-benchmark.pdf) or to this [link](http://ailab.criteo.com/criteo-uplift-prediction-dataset/).
+
+## Uplift Modelling Setup 
+
+Since the Criteo dataset is large, in order for us to have faster experimentation cycles, we decided to randomly select 50% of the population which is ~6.5 million samples. We evaluated different uplift modeling approaches with 5-fold cross validation Qini (__qini__), Adjusted Qini (__aqini__) and Cumulative Gains(__cgains__) metrics.
+
+
+Given that the 4 frameworks are considered Meta-Learners, we incorporated 
+Gradient Boosting Classifier models with default hyperparameters, and did not perform any hyperparameter tuning for the purposes of keeping the analysis simple.
+
+We will analyse the results of two scenarios of treatment variable T vs different outcome variables:
+1. Treatment vs Visit
+2. Treatment vs Conversion.
+
+As we saw in the evaluation metrics section, uplift models can be evaluated with "qini", "aqini" & "cgains" metrics. We compared various modeling approaches with these evaluation metrics.
+
+### 1. Treatment vs Visit
+
+<table align="center">
+  <tr>
+    <td>Qini</td>
+  </tr>
+  <tr>
+    <td><img src="../img/results_visit_qini.png"></td>
+  </tr>
+  <tr>
+    <td>Adjusted Qini</td>
+  </tr>
+  <tr>
+    <td><img src="../img/results_visit_aqini.png"></td>
+  </tr>
+  <tr>
+    <td>Cumulative Gains</td>
+  </tr>
+  <tr>
+    <td><img src="../img/results_visit_cgains.png"></td>
+  </tr>
+ </table>
+ <div align="center">Fig 3: 5 fold cross validation results of various models for Qini, Adj Qini and CGains for Treatment on <b>Visit</b> as an outcome. Note that y-axis shows a differential of 0.05 between lower and upper limit for all metrics.</div>
+
+__Observations from Treatment on Visit:__
+- All the meta-learners are performing similarly both on mean & variances on cross validation metrics. The visualisations are all zoomed in (where the y-axis does not start at 0).
+- We observe that in general, the T-Learner tends to have __very slightly__ higher variance compared to the rest. This could be due to the fact that the T-Learner itself comes with inefficient data use where it develops separate models for Treated vs Control groups. Since our Control group is randomised at 15% of the data, this could explain the generally higher variance in the T-Learner framework.
+
+
+### 2. Treatment vs Conversion
+
+<table align="center">
+  <tr>
+    <td>Qini</td>
+  </tr>
+  <tr>
+    <td><img src="../img/results_conversion_qini.png"></td>
+  </tr>
+  <tr>
+    <td>Adjusted Qini</td>
+  </tr>
+  <tr>
+    <td><img src="../img/results_conversion_aqini.png"></td>
+  </tr>
+  <tr>
+    <td>Cumulative Gains</td>
+  </tr>
+  <tr>
+    <td><img src="../img/results_conversion_cgains.png"></td>
+  </tr>
+ </table>
+ <div align="center">Fig 4: 5 fold cross validation results of various models for Qini, Adj Qini and CGains for Treatment on <b>Conversion</b> as an outcome. Note that the y-axis lower limit starts at 0.</div>
+
+__Observations from Treatment on Conversion experiments:__
+- The OT framework performs significantly better than all other meta-learners with cgains of 0.181 with the least standard deviation of 0.017 on cross validation metrics. 
+- X-Learner is next best with cgains of 0.151 with standard deviation of 0.033.
+- S-Learner is the worst of all in terms of mean and variance when compared to other meta-learners. We suspect that in much lower response rate scenarios (i.e. Treatment on Conversion), the severe class imbalance of Treated vs Control (85:15 ratio) groups might worsen the variance of the S-Learner estimates. We also suspect that if there is some form of class imbalance correction (either with 50:50 Treated vs Control ratio of experimental data), the S-Learner performance will be much better in terms of estimate mean and variance.
+- Comparing T-Learner against OT and X-Learner, we hypothesize that the reduced performance is once again due to the data inefficiency inherent in its methodology.
+
+A big difference between the __Visit__ outcome scenario and the __Conversion__ outcome scenario is that in the latter case, both OT and X-Learner perform much better than the S and T-Learner. Note that the difference in scenarios are that the Visit outcome has about 4-5% outcome response rates while Conversion outocme has about 0.2 to 0.3% outcome response rates. For the OT and X-Learner, we posit that by explicitly incorporating propensity score models in their formulation, there is some form of "weighting correction" that allows for better modelling of the incremental treatment effect especially in low response rates scenarios. Thus, they are able to perform significantly better than the T and S-Learner.
+
+## Conclusion
+
+With the Criteo uplift dataset, all the approaches that we adopted showed similar performance for the Treatment vs Visit setting. However, we observe a stark difference in performances across the models for the Treatment vs Conversion setting. Not only does the Outcome Transformed model have the best average performance by far in that setting, it also has the lowest variance compared to the other models. On the other extreme, the S-learner has the lowest average performance with the highest variance across the runs. We would like to investigate variance behavior across the modeling approaches in future articles. 
+
+Another interesting way to look at uplift modeling is deriving a value from a flat A/B experiment result[1]. While a regular A/B experiment only allows us to discover treatment effects at the level of the whole population, causal inference techniques enable us to extract valuable information about the variation in responses across different subpopulations.
+
+## Future work
+
+Future articles that follow in this series cover aspects like  causal inference in non-randomized settings aka observational causal inference and uplift modeling with ROI constraints. In the later part of the series we will explore topics at the intersection of causal inference and multi arm bandits.
 
 
 ## Appendix 
 
-### A1
+### A1: Theoretical Proof of Outcome Transformation Approach
+
 
 
 
 ## References
-1. ![Machine Learning for Estimating Heretogeneous Casual Effects](https://www.gsb.stanford.edu/faculty-research/working-papers/machine-learning-estimating-heretogeneous-casual-effects)
-2. ![Meta-learners for Estimating Heterogeneous Treatment Effects using Machine Learning](https://arxiv.org/abs/1706.03461)
+1. [Machine Learning for Estimating Heretogeneous Casual Effects](https://www.gsb.stanford.edu/faculty-research/working-papers/machine-learning-estimating-heretogeneous-casual-effects)
+2. [Meta-learners for Estimating Heterogeneous Treatment Effects using Machine Learning](https://arxiv.org/abs/1706.03461)
+3. [Leveraging Causal Modeling to Get More Value from Flat Experiment Results](https://doordash.engineering/2020/09/18/causal-modeling-to-get-more-value-from-flat-experiment-results/comment-page-1/?unapproved=16&moderation-hash=7fa9a26e6386c27d25dbca6d1c777441#comments)
