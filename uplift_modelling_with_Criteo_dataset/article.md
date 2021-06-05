@@ -46,7 +46,7 @@ There are various approaches through which we can model incremental value. In th
 1. Single Model Approach (S-Learner) <sub>[1]</sub>, 
 2. Two Model Approach (T-Learner) <sub>[1]</sub>, 
 3. X-Learner <sub>[1]</sub>, and 
-4. CATE-generating Outcome Transformation (OT) approach <[2]
+4. CATE-generating Outcome Transformation (OT) approach <sub>[2]</sub>
 
 All the above formulations can be thought of as algorithmic frameworks to model incremental value, in which one can incorporate any typical machine learning algorithm as a base learner. These algorithmic frameworks are typically referred to as Meta-learners in the literature.
 
