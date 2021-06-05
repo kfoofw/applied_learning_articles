@@ -9,13 +9,13 @@ However, we can expect certain subgroups within the general population to experi
 This brings us to the topic of heterogeneous treatment effects (HTE), which implies that different subpopulation groups have varying treatment effects. By identifying that different subgroups will have different response rates to the treatment, we can perform “uplift modelling” to identify and rank the subgroups that have the best response rates and prioritise them. 
 
 ## What's uplift modeling? 
-Uplift (also known as incremental value) modelling is based on a generic framework using the theory of Conditional Average Treatment Effect (CATE). For a given intervention Treatment T, the incremental value is the difference in expected outcomes between T = 1 and T = 0, conditioned upon some covariates/features X.
+Uplift (also known as incremental value) modelling is based on a generic framework using the theory of Conditional Average Treatment Effect (CATE). For a given intervention Treatment __T__, the incremental value is the difference in expected outcomes between T = 1 and T = 0, conditioned upon some covariates/features __X__.
 
 <!-- $$
 \tau = E[Outcome | Treatment = Yes, Subject's\ Covariates] - E[Outcome | Treatment = No, Subject's\ Covariates]
 $$ --> 
 
-<div align="center"><img style="background: white;" src="../svg/bnNiILa9HE.svg"></div>
+<div align="center"><img style="background: white;" src="../uplift_modelling_with_Criteo_dataset/svg/incremental_value_tau.svg"></div>
 
 The assumptions behind uplift modelling are very similar to what we would in terms of a causal experiment with heterogeneous treatment effect. For a given set of covariates X, we assume conditional independence between the treatment assignment T and the potential outcomes (Y<sup>1</sup>,Y<sup>0</sup>). This is also known as the __conditional exchangeability/unfoundedness__ assumption.
 
@@ -104,7 +104,7 @@ Once again, note that M1 was created with the Treated group, while M0 was create
 \hat{D}^{0} = M_1(X^{0}) -Y^{0}
 $$ --> 
 
-<div align="center"><img style="background: white;" src="../svg/Tsbo8dSsoZ.svg"></div>
+<div align="center"><img style="background: white;" src="../uplift_modelling_with_Criteo_dataset/svg/xlearner_d0.svg"></div>
 
 - For the Treated group data, we estimate an intermediate variable DT=1 based on the observed outcome minus the M0 counterfactual outcome prediction.
 
@@ -112,7 +112,7 @@ $$ -->
 \hat{D}^{1} = Y^{1} - M_0(X^{1})
 $$ --> 
 
-<div align="center"><img style="background: white;" src="../svg/y0LR43hM4R.svg"></div>
+<div align="center"><img style="background: white;" src="../uplift_modelling_with_Criteo_dataset/svg/xlearner_d1.svg"></div>
 
 Thereafter, in the second stage, the two models (M<sub>11</sub> and M<sub>00</sub>) are created using the intermediate values D<sup>1</sup> and D<sup>0</sup> accordingly:
 
@@ -120,7 +120,7 @@ Thereafter, in the second stage, the two models (M<sub>11</sub> and M<sub>00</su
 Second\ Stage:\ M_{11}(\hat{D}^1\ \sim \ X^1),\ M_{00}(\hat{D}^0\ \sim \ X^0)
 $$ --> 
 
-<div align="center"><img style="background: white;" src="../svg/pKBicNRux7.svg"></div>
+<div align="center"><img style="background: white;" src="../uplift_modelling_with_Criteo_dataset/svg/xlearner_2nd_stage.svg"></div>
 
 Subsequently, the CATE estimation for a given unit (with its corresponding X features) is shown by the following:
 
@@ -128,7 +128,7 @@ Subsequently, the CATE estimation for a given unit (with its corresponding X fea
 \hat{\tau}(X) = g(x)M_{00}(X) - (1 - g(x))M_{11}(X)
 $$ --> 
 
-<div align="center"><img style="background: white;" src="../svg/f2dd6UhIY2.svg"></div>
+<div align="center"><img style="background: white;" src="../uplift_modelling_with_Criteo_dataset/svg/xlearner_tau.svg"></div>
 
 Where g(x) is some function and typically created as the propensity scoring model.
 
@@ -145,6 +145,7 @@ $$ -->
 <div align="center"><img style="background: white;" src="https://render.githubusercontent.com/render/math?math=Y%5E%7B*%7D_%7Bi%7D%20%3D%20Y%5E%7Bobs%7D_%7B*%7D.%5Cfrac%7BW_i%20-%20e(X_i)%7D%7Be(X_i).(1-e(X_i))%7D"></div>
 
 where:
+- __Y<sub>i</sub><sup>*</sup>__ is the transformed outcome variable to be modelled.
 - __i__ is an indexing on the treated subject, 
 - __Y<sub>i</sub><sup>obs</sup>__ is the observed outcome
 - __e(X<sub>i</sub>)__ is the treatment assignment probability aka propensity score
@@ -156,15 +157,15 @@ Suppose that the unconfoundedness/conditional exchangeability assumption holds, 
 \mathbb{E}[Y_i^{*} | X_i = x]\ =\ \tau(x)
 $$ --> 
 
-<div align="center"><img style="background: white;" src="../svg/044Ij2WMQv.svg"></div>
+<div align="center"><img style="background: white;" src="../uplift_modelling_with_Criteo_dataset/svg/ot_tau.svg"></div>
 
-For a detailed mathematical proof of the above, please refer to Appendix A1 which has a handwritten breakdown of the mathematical formulation.
+For a detailed mathematical proof of the above, please refer to __Appendix A1__ which has a handwritten breakdown of the mathematical formulation.
 
 ## Evaluation Techniques
 
 Evaluation of uplift models involves various metrics. However, before we get into the different metrics, one should understand how to read a gain chart. In the x-axis, we seek to rank the population according to the predicted treatment effects (from highest to lowest typically in a left to right manner along the x-axis.). Thereafter, we can calculate the metric of interest on the y-axis as if we were accumulating more and more of the population quantiles. 
 
-<div align="center"><img src="../img/example_gain_chart.png"></div>
+<div align="center"><img src="../uplift_modelling_with_Criteo_dataset/img/example_gain_chart.png"></div>
 <div align="center">Fig 1: Example Gain Chart</div>
 
 Notably, the typical benchmark for evaluative comparison is a randomised model. This is often represented by the diagonal relatively “straight” line which represents a policy/model that does not discriminate between the subgroups populations (which is represented by the solid black line above). With the lack of prioritisation, the gain effect climbs steadily on average as you increment across the population quantiles.
@@ -184,7 +185,7 @@ The Qini Curve is formulated by the following formula:
 Qini(\phi) = \frac{n_{t, y = 1}(\phi)}{N_t} - \frac{n_{c,y=1}(\phi)}{N_c}
 $$ --> 
 
-<div align="center"><img style="background: white;" src="../svg/qini_formula.svg"></div>
+<div align="center"><img style="background: white;" src="../uplift_modelling_with_Criteo_dataset/svg/qini_formula.svg"></div>
 
 The population fraction ϕ is the fraction of population treated (in either treated t or control c, as indicated by the subscripts) ordered by predicted uplift (from highest to lowest). The numerators represent the count of positive binary outcomes corresponding to either the Treatment group or the Control Group. The denominators (represented by capital N) however do not depend on the population fraction, and are instead the total count of either Treatment or Controls in the experiment. 
 
@@ -200,7 +201,7 @@ The Adjusted Qini curve is based on the following formula:
 Adjusted\ Qini(\phi) = \frac{n_{t, y = 1}(\phi)}{N_t} - \frac{n_{c,y=1}(\phi)n_t(\phi)}{n_c(\phi)N_t}
 $$ --> 
 
-<div align="center"><img style="background: white;" src="../svg/adjusted_qini_formula.svg"></div>
+<div align="center"><img style="background: white;" src="../uplift_modelling_with_Criteo_dataset/svg/adjusted_qini_formula.svg"></div>
 
 The difference between the Qini curve and the adjusted Qini curve is the fraction for the Control group (represented by the fraction being subtracted). This modified fraction is formulated to represent the fraction value while adjusting for the count of Positive Outcomes in the Control group as if the Total Control Group size was similar to the Total Treatment group size. This is particularly applicable for cases where the treatment group is much smaller compared to the control group in a randomised control trial (where the rationale being that you may not want to expose a potentially harmful treatment to a large proportion of your experimental population). 
 
@@ -212,7 +213,7 @@ There are different variants of the Cumulative Gain metric, but for this article
 Cumulative\ Gain(\phi) = \left (\frac{n_{t, y = 1}(\phi)}{n_t(\phi)} - \frac{n_{c,y=1}(\phi)}{n_c(\phi)}\right )\frac{n_t(\phi) + n_c(\phi)}{N_t + N_c}
 $$ --> 
 
-<div align="center"><img style="background: white;" src="../svg/cgains_formula.svg"></div>
+<div align="center"><img style="background: white;" src="../uplift_modelling_with_Criteo_dataset/svg/cgains_formula.svg"></div>
 
 The first bracket shows the difference in fractions in the Treatment vs Control groups, whereby the numerators represent the count of Positive Outcomes while the denominator represents the count of Treatment/Control based on a given population.
 
@@ -224,7 +225,7 @@ The Adjusted Qini Curve can also be reformulated in a different way to illustrat
 Adjusted\ Qini(\phi) = \frac{n_{t, y = 1}(\phi)}{N_t} - \frac{n_{c,y=1}(\phi)n_t(\phi)}{n_c(\phi)N_t} = \left (\frac{n_{t, y = 1}(\phi)}{n_t(\phi)} - \frac{n_{c,y=1}(\phi)}{n_c(\phi)}\right )\frac{n_t(\phi)}{N_t}
 $$ --> 
 
-<div align="center"><img style="background: white;" src="../svg/aqini_vs_cgains_formula.svg"></div>
+<div align="center"><img style="background: white;" src="../uplift_modelling_with_Criteo_dataset/svg/aqini_vs_cgains_formula.svg"></div>
 
 Based on the revised formulation of the Adjusted Qini, we can clearly see the difference in the multipliers.
 
@@ -234,8 +235,8 @@ Based on the revised formulation of the Adjusted Qini, we can clearly see the di
      <td>Cumulative Gains</td>
   </tr>
   <tr>
-    <td><img src="../img/aqini_formula_multiplier.png" width=270></td>
-    <td><img src="../img/cgains_formula_multiplier.png" width=340></td>
+    <td><img src="../uplift_modelling_with_Criteo_dataset/img/aqini_formula_multiplier.png" width=270></td>
+    <td><img src="../uplift_modelling_with_Criteo_dataset/img/cgains_formula_multiplier.png" width=340></td>
   </tr>
  </table>
 
@@ -247,12 +248,12 @@ Given the cumulative gain uses both Treated and Control population at every frac
 
 To incorporate the various metrics for evaluation, we have to refer back to the gain chart visualisation. As mentioned, the randomised model is the typical benchmark that is represented by the diagonal 45 degree line.
 
-<div align="center"><img src="../img/example_gain_chart_auc.png"></div>
+<div align="center"><img src="../uplift_modelling_with_Criteo_dataset/img/example_gain_chart_auc.png"></div>
 <div align="center">Fig 2: Example Gain Chart with AUC differential between a given model (curve with circular dots and solid lines) versus a randomised model benchmark (curve with dashed lines) </div>
 
 When we evaluate a model’s performance relative using the Qini formulation for example, we calculate the Q coefficient which is represented by:
 
-<div align="center"><img src="../img/AUC_formula_for_qini.png"></div>
+<div align="center"><img src="../uplift_modelling_with_Criteo_dataset/img/AUC_formula_for_qini.png"></div>
 
 This difference in AUC is represented by the red shading in the above figure. Note that the same can be done for Adjusted Qini or Cumulative Gain as the metric.
 
@@ -271,7 +272,7 @@ The dataset comes with the following variables:
 
 With this dataset, the treatment assignment is randomised, but the ratio between the Treated vs Control group is 85% to 15%. 
 
-<div align="center"><img src="../img/EDA_treated_vs_control_ratio.png"></div>
+<div align="center"><img src="../uplift_modelling_with_Criteo_dataset/img/EDA_treated_vs_control_ratio.png"></div>
 
 Based on the difference in treatment assignments, we can take a look at the breakdown of two different outcome distributions, namely __“Visit”__ and __“Conversion”__.
 
@@ -279,13 +280,13 @@ With __Visit__ as an outcome, the response rates are
 - Control group: 80105/ (80105 + 2016832) = 3.82%
 - Treated group: 576824 / (576824 + 11305831) = 4.85%
 
-<div align="center"><img src="../img/EDA_visit_outcome_distribution.png"></div>
+<div align="center"><img src="../uplift_modelling_with_Criteo_dataset/img/EDA_visit_outcome_distribution.png"></div>
 
 With __Conversion__ as an outcome, the response rates are:
 - Control group: 4063 / (4063 + 2092874) = 0.194%
 - Treated group: 36711 / (36711 + 11845944) = 0.309%.
 
-<div align="center"><img src="../img/EDA_conversion_outcome_distribution.png"></div>
+<div align="center"><img src="../uplift_modelling_with_Criteo_dataset/img/EDA_conversion_outcome_distribution.png"></div>
 
 The table below shows a big difference in the quantum of the outcome scenarios, where the __Conversion__ rates are about 10 to 20 times smaller than the __Visit__ rates.
 
@@ -322,28 +323,34 @@ We will analyse the results of two scenarios of treatment variable T vs differen
 1. Treatment vs Visit
 2. Treatment vs Conversion.
 
-As we saw in the evaluation metrics section, uplift models can be evaluated with "qini", "aqini" & "cgains" metrics. We compared various modeling approaches with these evaluation metrics.
+As we saw in the evaluation metrics section, uplift models can be evaluated with "qini", "aqini" & "cgains" metrics. We compared various modeling approaches with these evaluation metrics across 5 fold cross validation.
 
 ### 1. Treatment vs Visit
+
+An example of the OT frameowork performance Cumulative Gains chart on Visit outcome on a particular fold is shown below.
+
+* Insert visualisation chart here
+
+In terms of 5 fold cross validation, the following charts should show the performance of the different frameworks.
 
 <table align="center">
   <tr>
     <td>Qini</td>
   </tr>
   <tr>
-    <td><img src="../img/results_visit_qini.png"></td>
+    <td><img src="../uplift_modelling_with_Criteo_dataset/img/results_visit_qini.png"></td>
   </tr>
   <tr>
     <td>Adjusted Qini</td>
   </tr>
   <tr>
-    <td><img src="../img/results_visit_aqini.png"></td>
+    <td><img src="../uplift_modelling_with_Criteo_dataset/img/results_visit_aqini.png"></td>
   </tr>
   <tr>
     <td>Cumulative Gains</td>
   </tr>
   <tr>
-    <td><img src="../img/results_visit_cgains.png"></td>
+    <td><img src="../uplift_modelling_with_Criteo_dataset/img/results_visit_cgains.png"></td>
   </tr>
  </table>
  <div align="center">Fig 3: 5 fold cross validation results of various models for Qini, Adj Qini and CGains for Treatment on <b>Visit</b> as an outcome. Note that y-axis shows a differential of 0.05 between lower and upper limit for all metrics.</div>
@@ -355,24 +362,30 @@ __Observations from Treatment on Visit:__
 
 ### 2. Treatment vs Conversion
 
+An example of the OT frameowork performance Cumulative Gains chart on Conversion outcome on a particular fold is shown below.
+
+* Insert visualisation chart here
+
+In terms of 5 fold cross validation, the following charts should show the performance of the different frameworks.
+
 <table align="center">
   <tr>
     <td>Qini</td>
   </tr>
   <tr>
-    <td><img src="../img/results_conversion_qini.png"></td>
+    <td><img src="../uplift_modelling_with_Criteo_dataset/img/results_conversion_qini.png"></td>
   </tr>
   <tr>
     <td>Adjusted Qini</td>
   </tr>
   <tr>
-    <td><img src="../img/results_conversion_aqini.png"></td>
+    <td><img src="../uplift_modelling_with_Criteo_dataset/img/results_conversion_aqini.png"></td>
   </tr>
   <tr>
     <td>Cumulative Gains</td>
   </tr>
   <tr>
-    <td><img src="../img/results_conversion_cgains.png"></td>
+    <td><img src="../uplift_modelling_with_Criteo_dataset/img/results_conversion_cgains.png"></td>
   </tr>
  </table>
  <div align="center">Fig 4: 5 fold cross validation results of various models for Qini, Adj Qini and CGains for Treatment on <b>Conversion</b> as an outcome. Note that the y-axis lower limit starts at 0.</div>
@@ -389,7 +402,7 @@ A big difference between the __Visit__ outcome scenario and the __Conversion__ o
 
 With the Criteo uplift dataset, all the approaches that we adopted showed similar performance for the Treatment vs Visit setting. However, we observe a stark difference in performances across the models for the Treatment vs Conversion setting. Not only does the Outcome Transformed model have the best average performance by far in that setting, it also has the lowest variance compared to the other models. On the other extreme, the S-learner has the lowest average performance with the highest variance across the runs. We would like to investigate variance behavior across the modeling approaches in future articles. 
 
-Another interesting way to look at uplift modeling is deriving a value from a flat A/B experiment result[1]. While a regular A/B experiment only allows us to discover treatment effects at the level of the whole population, causal inference techniques enable us to extract valuable information about the variation in responses across different subpopulations.
+Another interesting way to look at uplift modeling is deriving a value from a flat A/B experiment result[3]. While a regular A/B experiment only allows us to discover treatment effects at the level of the whole population, causal inference techniques enable us to extract valuable information about the variation in responses across different subpopulations.
 
 ## Future work
 
