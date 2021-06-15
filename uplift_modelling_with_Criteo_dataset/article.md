@@ -402,9 +402,9 @@ __Observations from Treatment on Conversion experiments:__
 A big difference between the __Visit__ outcome scenario and the __Conversion__ outcome scenario is that in the latter case, both OT and X-Learner perform much better than the S and T-Learner. Note that the difference in scenarios are that the Visit outcome has about 4-5% outcome response rates while Conversion outocme has about 0.2 to 0.3% outcome response rates. For the OT and X-Learner, we posit that by explicitly incorporating propensity score models in their formulation, there is some form of "weighting correction" that allows for better modelling of the incremental treatment effect especially in low response rates scenarios. Thus, they are able to perform significantly better than the T and S-Learner.
 
 Reference to the notebooks within this project repo can be found here:
-- ![5 Fold Cross Validation Notebook](https://github.com/kfoofw/applied_learning_articles/blob/main/uplift_modelling_with_Criteo_dataset/notebooks/Criteo%20-%20Plots.ipynb)
-- ![CV Results Visualisation Notebook](https://github.com/kfoofw/applied_learning_articles/blob/main/uplift_modelling_with_Criteo_dataset/notebooks/results_visualisation/Results_Visualisation.ipynb)
-- ![Example CGAINS chart for various metalearners](https://github.com/kfoofw/applied_learning_articles/blob/main/uplift_modelling_with_Criteo_dataset/notebooks/Uplift%20Modeling%20With%20Criteo%20Dataset.ipynb)
+- [5 Fold Cross Validation Notebook](https://github.com/kfoofw/applied_learning_articles/blob/main/uplift_modelling_with_Criteo_dataset/notebooks/Criteo%20-%20Plots.ipynb)
+- [CV Results Visualisation Notebook](https://github.com/kfoofw/applied_learning_articles/blob/main/uplift_modelling_with_Criteo_dataset/notebooks/results_visualisation/Results_Visualisation.ipynb)
+- [Example CGAINS chart for various metalearners](https://github.com/kfoofw/applied_learning_articles/blob/main/uplift_modelling_with_Criteo_dataset/notebooks/Uplift%20Modeling%20With%20Criteo%20Dataset.ipynb)
 
 
 ## 7.0 Conclusion
