@@ -1,6 +1,6 @@
 # Uplift Modelling aka Heterogeneous Treatment Effects Evaluation with Criteo Data
 
-##  Why Uplift Modelling / Heterogeneous Treatment Effect Modelling 
+##  1.0 Why Uplift Modelling / Heterogeneous Treatment Effect Modelling?
 
 With causal inference, we conduct experiments where the treatment assignment is  randomised, and we observe the outcomes (conventionally known as Y) on the experimental units. To calculate the average treatment effect within the whole population, we take the average value of the outcome within the treated group and compare it against the average outcome value within the control group. Since the treatment assignment is randomised, the only difference between both groups is the treatment effect, and we can conclude that the resultant difference is the causal effect of the treatment.
 
@@ -40,7 +40,7 @@ Based on the actions taken by customers/subjects with an intervention (e.g. a pr
 
 The objective of any uplift modeling exercise is to identify the __Persuadables__ and prioritise them while avoiding the rest.
 
-## Uplift Modelling with Meta-Learners
+## 2.0 Uplift Modelling with Meta-Learners
 
 There are various approaches through which we can model incremental value. In this article we cover four such techniques:
 1. Single Model Approach (S-Learner) <sub>[1]</sub>, 
@@ -50,7 +50,7 @@ There are various approaches through which we can model incremental value. In th
 
 All the above formulations can be thought of as algorithmic frameworks to model incremental value, in which one can incorporate any typical machine learning algorithm as a base learner. These algorithmic frameworks are typically referred to as Meta-learners in the literature.
 
-### S-Learner
+### 2.1 S-Learner
 
 The S-Learner can be thought of as a “single” model approach. We then model the outcome Y conditional on X AND T (where T is treated as one of the covariates) with the data. The implications of the S Learner is that if the set of X features is very large (or high dimensional), estimating the causal effect of T on Y might be difficult since T is just one out of many covariates. In the following notation, M represents a particular supervised learning model applied on predicting Y conditional on X and T.
 
@@ -68,7 +68,7 @@ $$ -->
 
 <div align="center"><img style="background: white;" src="https://render.githubusercontent.com/render/math?math=%5Chat%7B%5Ctau%7D(X%20%3D%20x)%20%3D%20M(X%20%3D%20x%2C%20T%20%3D%201)%20-%20M(X%20%3D%20x%2C%20T%20%3D%200)"></div>
 
-### T-Learner
+### 2.2 T-Learner
 The T-Learner on the other hand uses two models: one for the treated group (represented by M1), and one for the control group (represented by M0). Given that there are separate models for the corresponding groups, the T column is not included as a covariate in the modelling.
 
 <!-- $$
@@ -87,7 +87,7 @@ $$ -->
 
 With the T-Learner, note that there is data inefficiency in the modelling since we only use the treated group data for one model, and the control group data for the other model. To overcome this data inefficiency, we can take a look at the X-Learner.
 
-### X-Learner
+### 2.3 X-Learner
 The X-Learner consists of two stages each with two models. The two models in the first stage are essentially the same as the two models in the T-Learner. 
 
 <!-- $$
@@ -132,7 +132,7 @@ $$ -->
 
 Where g(x) is some function and typically created as the propensity scoring model.
 
-### CATE-generating Outcome Transformer (OT) approach
+### 2.4 CATE-generating Outcome Transformer (OT) approach
 
 For the OT approach, a key insight is that we can characterize the CATE as a conditional expectation of an observed variable by transforming the outcome using the treatment indicator and the treatment assignment probability. 
 
@@ -161,7 +161,7 @@ $$ -->
 
 For a detailed mathematical proof of the above, please refer to [__Appendix A1__](https://github.com/kfoofw/applied_learning_articles/blob/main/uplift_modelling_with_Criteo_dataset/article.md#a1-theoretical-proof-of-outcome-transformation-approach) which has a handwritten breakdown of the mathematical formulation.
 
-## Evaluation Techniques
+## 3.0 Evaluation Techniques
 
 Evaluation of uplift models involves various metrics. However, before we get into the different metrics, one should understand how to read a gain chart. In the x-axis, we seek to rank the population according to the predicted treatment effects (from highest to lowest typically in a left to right manner along the x-axis.). Thereafter, we can calculate the metric of interest on the y-axis as if we were accumulating more and more of the population quantiles. 
 
@@ -177,7 +177,7 @@ In uplift modelling, there are 3 common evaluative measures namely:
 - Adjusted Qini curve
 - Cumulative Gain curve
 
-### Qini Curve
+### 3.1 Qini Curve
 
 The Qini Curve is formulated by the following formula:
 
@@ -193,7 +193,7 @@ Mathematically, the value represents the difference in Positive Outcomes between
 
 The intuition is that since we ranked the population by descending predicted treatment effects, we would expect the Qini value to be higher at the earliest quantile of the population (where the treatment effect is bigger), and taper off with increasing population quantiles (where the treatment effect is smaller).
 
-### Adjusted Qini Curve
+### 3.2 Adjusted Qini Curve
 
 The Adjusted Qini curve is based on the following formula:
 
@@ -205,7 +205,7 @@ $$ -->
 
 The difference between the Qini curve and the adjusted Qini curve is the fraction for the Control group (represented by the fraction being subtracted). This modified fraction is formulated to represent the fraction value while adjusting for the count of Positive Outcomes in the Control group as if the Total Control Group size was similar to the Total Treatment group size. This is particularly applicable for cases where the treatment group is much smaller compared to the control group in a randomised control trial (where the rationale being that you may not want to expose a potentially harmful treatment to a large proportion of your experimental population). 
 
-### Cumulative Gain Curve
+### 3.3 Cumulative Gain Curve
 
 There are different variants of the Cumulative Gain metric, but for this article, the formula is based on the following:
 
@@ -244,7 +244,7 @@ The Adjusted Qini has a multiplier that is based on <!-- $\frac{n_t(\phi)}{N_t}$
 
 Given the cumulative gain uses both Treated and Control population at every fraction in adjustment factor, we emphasize that the cumulative gains chart is less biased than the adjusted Qini curve.  However, the adjusted Qini can be useful when the percentage of the Treated group is much smaller compared to the Control group in the experiment. Under such a scenario, the adjusted Qini will value the treatment group information disproportionately higher. 
 
-## Model Comparison with Area Under Curve (AUC) Differential
+## 4.0 Model Comparison with Area Under Curve (AUC) Differential
 
 To incorporate the various metrics for evaluation, we have to refer back to the gain chart visualisation. As mentioned, the randomised model is the typical benchmark that is represented by the diagonal 45 degree line.
 
@@ -259,7 +259,7 @@ This difference in AUC is represented by the red shading in the above figure. No
 
 For more details, please refer to [PyLift’s documentation on the 3 measures](https://pylift.readthedocs.io/en/latest/introduction.html#the-qini-curve).
 
-## Criteo dataset
+## 5.0 Criteo Dataset
 
 The Criteo dataset was created as a standardised benchmark dataset for research experimentation and algorithm comparison. This dataset consists of about 13 million observations.
 
@@ -311,7 +311,7 @@ The table below shows a big difference in the quantum of the outcome scenarios, 
 
 For more details, you can refer to the paper [“A Large Scale Benchmark for Uplift Modeling”](http://ama.imag.fr/~amini/Publis/large-scale-benchmark.pdf) or to this [link](http://ailab.criteo.com/criteo-uplift-prediction-dataset/).
 
-## Uplift Modelling Setup 
+## 6.0 Uplift Modelling Setup 
 
 Since the Criteo dataset is large, in order for us to have faster experimentation cycles, we decided to randomly select 50% of the population which is ~6.5 million samples. We evaluated different uplift modeling approaches with 5-fold cross validation Qini (__qini__), Adjusted Qini (__aqini__) and Cumulative Gains(__cgains__) metrics.
 
@@ -325,11 +325,14 @@ We will analyse the results of two scenarios of treatment variable T vs differen
 
 As we saw in the evaluation metrics section, uplift models can be evaluated with "qini", "aqini" & "cgains" metrics. We compared various modeling approaches with these evaluation metrics across 5 fold cross validation.
 
-### 1. Treatment vs Visit
+### 6.1 Treatment vs Visit
 
-An example of the OT frameowork performance Cumulative Gains chart on Visit outcome on a particular fold is shown below.
+An example of the OT framework performance on the Treatment vs Visit outcome of a particular fold is shown below.
 
-* Insert visualisation chart here
+<div align="center"><img src="../uplift_modelling_with_Criteo_dataset/img/treatment-vs-visit_OT-example-cgains.png"></div>
+<div align="center">Fig 3: Outcome Transformation Metalearner CGAIN chart for Treatment vs Visit.</div>  
+
+Notice how with the OT meta-learner model, by prioritising the top 40% of the population, we capture about 90% of the overall cumulative gain. This actually opens up options for __value optimisation__, but this will not be explored within this article.
 
 In terms of 5 fold cross validation, the following charts should show the performance of the different frameworks.
 
@@ -353,18 +356,18 @@ In terms of 5 fold cross validation, the following charts should show the perfor
     <td><img src="../uplift_modelling_with_Criteo_dataset/img/results_visit_cgains.png"></td>
   </tr>
  </table>
- <div align="center">Fig 3: 5 fold cross validation results of various models for Qini, Adj Qini and CGains for Treatment on <b>Visit</b> as an outcome. Note that y-axis shows a differential of 0.05 between lower and upper limit for all metrics.</div>
+ <div align="center">Fig 4: 5 fold cross validation results of various models for Qini, Adj Qini and CGains for Treatment on <b>Visit</b> as an outcome. Note that y-axis shows a differential of 0.05 between lower and upper limit for all metrics.</div>
 
 __Observations from Treatment on Visit:__
 - All the meta-learners are performing similarly both on mean & variances on cross validation metrics. The visualisations are all zoomed in (where the y-axis does not start at 0).
 - We observe that in general, the T-Learner tends to have __very slightly__ higher variance compared to the rest. This could be due to the fact that the T-Learner itself comes with inefficient data use where it develops separate models for Treated vs Control groups. Since our Control group is randomised at 15% of the data, this could explain the generally higher variance in the T-Learner framework.
 
+### 6.2 Treatment vs Conversion
 
-### 2. Treatment vs Conversion
+An example of the X-Learner framework performance on the Treatment vs Visit outcome of a particular fold is shown below.
 
-An example of the OT frameowork performance Cumulative Gains chart on Conversion outcome on a particular fold is shown below.
-
-* Insert visualisation chart here
+<div align="center"><img src="../uplift_modelling_with_Criteo_dataset/img/treatment-vs-conversion_X-example-cgains.png"></div>
+<div align="center">Fig 5: X- Metalearner CGAIN chart for Treatment vs Conversion.</div>  
 
 In terms of 5 fold cross validation, the following charts should show the performance of the different frameworks.
 
@@ -398,13 +401,13 @@ __Observations from Treatment on Conversion experiments:__
 
 A big difference between the __Visit__ outcome scenario and the __Conversion__ outcome scenario is that in the latter case, both OT and X-Learner perform much better than the S and T-Learner. Note that the difference in scenarios are that the Visit outcome has about 4-5% outcome response rates while Conversion outocme has about 0.2 to 0.3% outcome response rates. For the OT and X-Learner, we posit that by explicitly incorporating propensity score models in their formulation, there is some form of "weighting correction" that allows for better modelling of the incremental treatment effect especially in low response rates scenarios. Thus, they are able to perform significantly better than the T and S-Learner.
 
-## Conclusion
+## 7.0 Conclusion
 
 With the Criteo uplift dataset, all the approaches that we adopted showed similar performance for the Treatment vs Visit setting. However, we observe a stark difference in performances across the models for the Treatment vs Conversion setting. Not only does the Outcome Transformed model have the best average performance by far in that setting, it also has the lowest variance compared to the other models. On the other extreme, the S-learner has the lowest average performance with the highest variance across the runs. We would like to investigate variance behavior across the modeling approaches in future articles. 
 
 Another interesting way to look at uplift modeling is deriving a value from a flat A/B experiment result[3]. While a regular A/B experiment only allows us to discover treatment effects at the level of the whole population, causal inference techniques enable us to extract valuable information about the variation in responses across different subpopulations.
 
-## Future work
+## 8.0 Future work
 
 Future articles that follow in this series cover aspects like  causal inference in non-randomized settings aka observational causal inference and uplift modeling with ROI constraints. In the later part of the series we will explore topics at the intersection of causal inference and multi arm bandits.
 
@@ -413,7 +416,7 @@ Future articles that follow in this series cover aspects like  causal inference 
 
 ### A1: Theoretical Proof of Outcome Transformation Approach
 
-
+<div align="center"><img src="../uplift_modelling_with_Criteo_dataset/img/OT_Theorem_Proof.png"></div>
 
 
 ## References
