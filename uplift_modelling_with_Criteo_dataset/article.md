@@ -415,7 +415,7 @@ Another interesting way to look at uplift modeling is deriving a value from a fl
 
 ## 8.0 Future work
 
-Future articles that follow in this series cover aspects like  causal inference in non-randomized settings aka observational causal inference and uplift modeling with ROI constraints. In the later part of the series we will explore topics at the intersection of causal inference and multi arm bandits.
+Future articles that follow in this series cover aspects like  causal inference in non-randomized settings aka observational causal inference and uplift modeling with ROI constraints[4]. In the later part of the series we will explore topics at the intersection of causal inference and multi arm bandits.
 
 
 ## Appendix 
@@ -429,3 +429,4 @@ Future articles that follow in this series cover aspects like  causal inference 
 1. [Machine Learning for Estimating Heretogeneous Casual Effects](https://www.gsb.stanford.edu/faculty-research/working-papers/machine-learning-estimating-heretogeneous-casual-effects)
 2. [Meta-learners for Estimating Heterogeneous Treatment Effects using Machine Learning](https://arxiv.org/abs/1706.03461)
 3. [Leveraging Causal Modeling to Get More Value from Flat Experiment Results](https://doordash.engineering/2020/09/18/causal-modeling-to-get-more-value-from-flat-experiment-results/comment-page-1/?unapproved=16&moderation-hash=7fa9a26e6386c27d25dbca6d1c777441#comments)
+4. [Free Lunch! Retrospective Uplift Modeling for Dynamic Promotions Recommendation within ROI Constraints](https://arxiv.org/abs/2008.06293)
