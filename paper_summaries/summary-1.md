@@ -1,7 +1,6 @@
 Paper:
 
-"From predictive uplift modeling to prescriptive uplift analytics:
-A practical approach to treatment optimization while accounting for estimation risk"
+"From predictive uplift modeling to prescriptive uplift analytics: A practical approach to treatment optimization while accounting for estimation risk"
 
 [Link here](https://sci-hub.se/10.1057/jma.2015.5)
 
